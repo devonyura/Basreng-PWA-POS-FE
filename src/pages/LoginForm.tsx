@@ -117,7 +117,7 @@ const LoginForm: React.FC = () => {
 				</IonToolbar>
 			</IonHeader>
 			<IonContent className="ion-padding">
-				<IonImg src="/icon.png" className="app-logo" alt="App Logo" />
+				{/* <IonImg src="/icon.png" className="app-logo" alt="App Logo" /> */}
 				{isTokenExpired ? (
 					<IonToast
 						isOpen={true}
