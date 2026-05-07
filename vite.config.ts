@@ -46,27 +46,39 @@ export default defineConfig({
 		react(),
 		VitePWA({
 			registerType: 'autoUpdate',
+			includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
 			manifest: {
-				name: 'My PWA App',
-				short_name: 'PWA App',
-				theme_color: '#ffffff', // 🚀 WAJIB ditambahkan agar bisa diinstal
+				name: 'Basreng POS',
+				short_name: 'BasrengPOS',
+				description: 'Point of Sale application for Basreng',
+				theme_color: '#ffffff',
 				background_color: '#ffffff',
 				display: 'standalone',
+				orientation: 'portrait',
 				icons: [
 					{
-						src: '/icon.png',
+						src: 'icon.png',
 						sizes: '192x192',
 						type: 'image/png'
 					},
 					{
-						src: '/icon.png',
+						src: 'icon.png',
 						sizes: '512x512',
 						type: 'image/png'
+					},
+					{
+						src: 'icon.png',
+						sizes: '512x512',
+						type: 'image/png',
+						purpose: 'any maskable'
 					}
 				]
 			},
 			workbox: {
 				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024 // 5MB
+			},
+			devOptions: {
+				enabled: true
 			}
 		})
 	],
