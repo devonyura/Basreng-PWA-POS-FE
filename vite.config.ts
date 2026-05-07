@@ -31,8 +31,8 @@ export default defineConfig({
 	},
 	build: {
 		rollupOptions: {
-				output: {
-					manualChunks: {
+			output: {
+				manualChunks: {
 					vendor: ['react', 'react-dom'],
 					ionic: ['@ionic/react']
 				},
@@ -46,39 +46,80 @@ export default defineConfig({
 		react(),
 		VitePWA({
 			registerType: 'autoUpdate',
-			includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
 			manifest: {
-				name: 'Basreng POS',
-				short_name: 'BasrengPOS',
-				description: 'Point of Sale application for Basreng',
-				theme_color: '#ffffff',
+				name: 'My PWA App',
+				short_name: 'PWA App',
+				theme_color: '#ffffff', // 🚀 WAJIB ditambahkan agar bisa diinstal
 				background_color: '#ffffff',
 				display: 'standalone',
-				orientation: 'portrait',
 				icons: [
 					{
-						src: 'icon.png',
+						src: '/icon.png',
 						sizes: '192x192',
 						type: 'image/png'
 					},
 					{
-						src: 'icon.png',
+						src: '/icon.png',
 						sizes: '512x512',
 						type: 'image/png'
-					},
-					{
-						src: 'icon.png',
-						sizes: '512x512',
-						type: 'image/png',
-						purpose: 'any maskable'
 					}
 				]
 			},
-			workbox: {
-				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024 // 5MB
-			},
 			devOptions: {
-				enabled: true
+				enabled: false
+			},
+			workbox: {
+				globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+				runtimeCaching: [
+					// ✅ Google Fonts
+					{
+						urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+						handler: 'CacheFirst',
+						options: {
+							cacheName: 'google-fonts',
+							expiration: {
+								maxEntries: 10,
+								maxAgeSeconds: 60 * 60 * 24 * 365,
+							},
+						},
+					},
+					// ✅ Gambar lokal
+					{
+						urlPattern: ({ request }) => request.destination === 'image',
+						handler: 'CacheFirst',
+						options: {
+							cacheName: 'images',
+							expiration: {
+								maxEntries: 100,
+								maxAgeSeconds: 60 * 60 * 24 * 30,
+							},
+						},
+					},
+					// 🚫 API backend — jangan cache, langsung ambil dari server
+					{
+						urlPattern: ({ url }) => url.pathname.startsWith('/api'),
+						handler: 'NetworkOnly',
+						options: {
+							cacheName: 'api-no-cache',
+						},
+					},
+					// ✅ Static file (local assets JS, CSS, dsb)
+					{
+						urlPattern: ({ url }) =>
+							url.origin === self.location.origin &&
+							!url.pathname.startsWith('/api') &&
+							!url.pathname.endsWith('.html'),
+						handler: "CacheFirst",
+						options: {
+							cacheName: 'local-assets',
+							expiration: {
+								maxEntries: 100,
+								maxAgeSeconds: 60 * 60 * 24 * 7,
+							},
+						},
+					},
+				],
+				maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
 			}
 		})
 	],

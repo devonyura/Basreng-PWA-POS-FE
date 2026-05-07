@@ -19,17 +19,23 @@ export interface BranchIncome {
   branch_name: string;
   total_transactions: string;
   total_income: string;
+  total_income_cash: string;
+  total_income_transfer_bank: string;
+  total_income_qris: string;
+  total_income_shopee: string;
 }
 
 // =============================
 // Tipe data untuk Pendapatan per Cabang
 // =============================
 export interface TopSelling {
-  name: string;
+  variant_id: string;
+  product_name: string;
+  weight_grams: string;
+  price: string;
   total_sold: string;
+  total_sales: string;
 }
-
-
 
 export interface ProductCategorySummary {
   category: string;
@@ -39,7 +45,9 @@ export interface ProductCategorySummary {
 // =============================
 // Fetch Ringkasan Penjualan
 // =============================
-export const getTransactionSummary = async (): Promise<TransactionSummary | any> => {
+export const getTransactionSummary = async (): Promise<
+  TransactionSummary | any
+> => {
   try {
     const TOKEN = Cookies.get("token");
     const apiOnline = await isApiOnline();
@@ -51,7 +59,7 @@ export const getTransactionSummary = async (): Promise<TransactionSummary | any>
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${TOKEN}`,
       },
     });
 
@@ -67,28 +75,33 @@ export const getTransactionSummary = async (): Promise<TransactionSummary | any>
 // =============================
 // Fetch Ringkasan Penjualan
 // =============================
-export const getTopSellingProduct = async (): Promise<TopSelling | any> => {
+export const getTopSellingProduct = async (
+  limit: number | "all" = "all",
+): Promise<TopSelling[]> => {
   try {
     const TOKEN = Cookies.get("token");
     const apiOnline = await isApiOnline();
     if (!apiOnline) throw new Error("Tidak dapat terhubung ke server.");
 
-    const url = `${BASE_API_URL}/api/report/top-selling`;
+    const query = limit === "all" ? "" : `?limit=${limit}`;
+    const url = `${BASE_API_URL}/api/report/top-selling${query}`;
+
     const response = await fetch(url, {
       method: "GET",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${TOKEN}`,
       },
     });
 
     checkOKResponse(response);
-    const data = await response.json();
-    return data.data;
+    const json = await response.json();
+
+    return json.data;
   } catch (error) {
     console.error("Error fetching product top selling:", error);
-    return error;
+    return [];
   }
 };
 
@@ -107,7 +120,7 @@ export const getIncomeByBranch = async (): Promise<BranchIncome[] | any> => {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${TOKEN}`,
       },
     });
 
@@ -128,7 +141,9 @@ export interface ChartIncomeLast7days {
   date: string;
   total_sales: string;
 }
-export const getReport = async (days: any = ''): Promise<ChartIncomeLast7days[] | any> => {
+export const getReport = async (
+  days: any = "",
+): Promise<ChartIncomeLast7days[] | any> => {
   try {
     const TOKEN = Cookies.get("token");
     const apiOnline = await isApiOnline();
@@ -140,7 +155,7 @@ export const getReport = async (days: any = ''): Promise<ChartIncomeLast7days[] 
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${TOKEN}`,
       },
     });
 
@@ -153,7 +168,9 @@ export const getReport = async (days: any = ''): Promise<ChartIncomeLast7days[] 
   }
 };
 
-export const getTransactionsReport = async (days: any = ''): Promise<ChartIncomeLast7days[] | any> => {
+export const getTransactionsReport = async (
+  days: any = "",
+): Promise<ChartIncomeLast7days[] | any> => {
   try {
     const TOKEN = Cookies.get("token");
     const apiOnline = await isApiOnline();
@@ -165,13 +182,13 @@ export const getTransactionsReport = async (days: any = ''): Promise<ChartIncome
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${TOKEN}`,
       },
     });
 
     checkOKResponse(response);
     const data = await response.json();
-    console.log(data)
+    console.log(data);
     return data;
   } catch (error) {
     console.error("Error fetching chart", error);
@@ -190,7 +207,9 @@ export interface ChartIncomeByBranch {
   branch_name: string;
   total_income: string;
 }
-export const getCategorySummary = async (): Promise<ProductCategorySummary[] | any> => {
+export const getCategorySummary = async (): Promise<
+  ProductCategorySummary[] | any
+> => {
   try {
     const TOKEN = Cookies.get("token");
     const apiOnline = await isApiOnline();
@@ -202,7 +221,7 @@ export const getCategorySummary = async (): Promise<ProductCategorySummary[] | a
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${TOKEN}`,
       },
     });
 

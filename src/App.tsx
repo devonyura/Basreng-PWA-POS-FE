@@ -1,4 +1,4 @@
-import { Redirect, Route } from "react-router-dom";
+import { Route } from "react-router-dom";
 import {
   IonApp,
   IonIcon,
@@ -10,15 +10,7 @@ import {
   setupIonicReact,
 } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import {
-  images,
-  square,
-  receiptOutline,
-  list,
-  storefront,
-} from "ionicons/icons";
-import Tab2 from "./pages/Tab2";
-import Tab3 from "./pages/Tab3";
+import { receiptOutline, list, storefront } from "ionicons/icons";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -52,7 +44,7 @@ import "./theme/variables.css";
 import StudentAdd from "./pages/StudentAdd";
 import StudentEdit from "./pages/StudentEdit";
 
-import { StudentProvider } from "./context/StudentContext";
+import { AuthProvider } from "./context/AuthContext";
 import LoginForm from "./pages/LoginForm";
 import KasirPage from "./pages/kasir/KasirPage";
 import TransactionHistory from "./pages/transaction_history/TransactionHistory";
@@ -67,79 +59,78 @@ import PackageListPage from "./pages/products/PackageListPage";
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <StudentProvider>
-    <IonApp>
-      <IonReactRouter>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Route exact path={`/login`}>
-              <LoginForm />
-            </Route>
-            {/* <Route exact path={`/student-list`}>
-              <StudentList />
-            </Route> */}
-            <Route exact path={`/student-add`}>
-              <StudentAdd />
-            </Route>
-            <Route exact path={`/student-edit`}>
-              <StudentEdit />
-            </Route>
-            <Route exact path={`/kasir`}>
-              <KasirPage />
-            </Route>
-            <Route exact path={`/transaction-history`}>
-              <TransactionHistory />
-            </Route>
-            <Route exact path={`/dashboard`}>
-              <Dashboard />
-            </Route>
-            <Route exact path={`/`}>
-              <Dashboard />
-            </Route>
-            <Route exact path={`/product-list`}>
-              <ProductListPage />
-            </Route>
-            <Route exact path={`/package-list`}>
-              <PackageListPage />
-            </Route>
-            <Route exact path={`/categories`}>
-              <CategoryListPage />
-            </Route>
-            <Route exact path={`/branch`}>
-              <BranchListPage />
-            </Route>
-            <Route exact path={`/users`}>
-              <UsersListPage />
-            </Route>
-            <Route exact path={`/report`}>
-              <ReportPage />
-            </Route>
-            <Route exact path={`/resellers`}>
-              <ResellerListPage />
-            </Route>
-          </IonRouterOutlet>
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="dashboard" href={`/dashboard`}>
-              <IonIcon aria-hidden="true" icon={storefront} />
-              <IonLabel>Dashboard</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="kasir" href={`/kasir`}>
-              <IonIcon aria-hidden="true" icon={receiptOutline} />
-              <IonLabel>Kasir</IonLabel>
-            </IonTabButton>
-            <IonTabButton
-              tab="transaction-history"
-              href={`/transaction-history`}
-            >
-              <IonIcon aria-hidden="true" icon={list} />
-              <IonLabel>Riwayat Transaksi</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonReactRouter>
-    </IonApp>
-  </StudentProvider>
-);
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <IonApp>
+        <IonReactRouter>
+          <IonTabs>
+            <IonRouterOutlet>
+              <Route exact path={`/login`}>
+                <LoginForm />
+              </Route>
+              <Route exact path={`/student-add`}>
+                <StudentAdd />
+              </Route>
+              <Route exact path={`/student-edit`}>
+                <StudentEdit />
+              </Route>
+              <Route exact path={`/kasir`}>
+                <KasirPage />
+              </Route>
+              <Route exact path={`/transactionhistory`}>
+                <TransactionHistory />
+              </Route>
+              <Route exact path={`/dashboard`}>
+                <Dashboard />
+              </Route>
+              <Route exact path={`/`}>
+                <Dashboard />
+              </Route>
+              <Route exact path={`/product-list`}>
+                <ProductListPage />
+              </Route>
+              <Route exact path={`/package-list`}>
+                <PackageListPage />
+              </Route>
+              <Route exact path={`/categories`}>
+                <CategoryListPage />
+              </Route>
+              <Route exact path={`/branch`}>
+                <BranchListPage />
+              </Route>
+              <Route exact path={`/users`}>
+                <UsersListPage />
+              </Route>
+              <Route exact path={`/report`}>
+                <ReportPage />
+              </Route>
+              <Route exact path={`/resellers`}>
+                <ResellerListPage />
+              </Route>
+            </IonRouterOutlet>
+            <IonTabBar slot="bottom">
+              <IonTabButton tab="dashboard" href={`/dashboard`}>
+                <IonIcon aria-hidden="true" icon={storefront} />
+                <IonLabel>Dashboard</IonLabel>
+              </IonTabButton>
+              <IonTabButton tab="kasir" href={`/kasir`}>
+                <IonIcon aria-hidden="true" icon={receiptOutline} />
+                <IonLabel>Kasir</IonLabel>
+              </IonTabButton>
+              <IonTabButton
+                tab="transactionhistory"
+                href={`/transactionhistory`}
+              >
+                <IonIcon aria-hidden="true" icon={list} />
+                <IonLabel>Riwayat Transaksi</IonLabel>
+              </IonTabButton>
+            </IonTabBar>
+          </IonTabs>
+        </IonReactRouter>
+      </IonApp>
+    </AuthProvider>
+  );
+};
 
 export default App;

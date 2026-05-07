@@ -16,6 +16,8 @@ import {
   IonAlert,
   IonAccordion,
   IonAccordionGroup,
+  IonText,
+  IonImg,
 } from "@ionic/react";
 import { pencil, trashBin } from "ionicons/icons";
 import { useEffect, useState } from "react";
@@ -25,9 +27,11 @@ import {
   deleteProduct,
 } from "../../hooks/restAPIProducts";
 import { getCategories, Category } from "../../hooks/restAPICategories";
-import { formatProductName } from "../../hooks/formatting";
-import ProductForm, { AlertMessageProps } from "./ProductForm";
+import ProductForm from "./ProductForm";
 import "./ProductListPage.css";
+import { FILE_BASE_URL } from "../../hooks/restAPIRequest";
+import { AlertMessageProps } from "./PackageForm";
+import { formatWeight } from "../../hooks/formatting";
 
 const ProductListPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -35,10 +39,9 @@ const ProductListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const [showModal, setShowModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<
-    string | undefined
-  >(undefined);
+    string | number | null
+  >(null);
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState<AlertMessageProps>({
@@ -49,15 +52,21 @@ const ProductListPage: React.FC = () => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState("");
 
+  const fetchInitialData = async () => {
+    setLoading(true);
+    await Promise.all([fetchProducts(), fetchCategories()]);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
+    fetchInitialData();
   }, []);
 
   const fetchProducts = async () => {
     try {
       const data = await getProducts();
       setProducts(data);
+      console.log("Products:", data);
     } catch (err) {
       console.error("Gagal mengambil data produk:", err);
     } finally {
@@ -74,32 +83,23 @@ const ProductListPage: React.FC = () => {
     }
   };
 
-  const handleAdd = (categoryId?: string) => {
-    setEditingProduct(null);
-    setSelectedCategoryId(categoryId);
-    setShowModal(true);
-  };
+  // const handleAdd = (categoryId?: string) => {
+  //   setEditingProduct(null);
+  //   setSelectedCategoryId(categoryId);
+  //   setShowModal(true);
+  // };
 
   const handleEdit = (product: Product) => {
-    const sanitizedProduct = {
-      ...product,
-      price: product.price.toString().split(".")[0],
-      quantity:
-        product.weight_grams !== undefined && product.weight_grams !== null
-          ? product.weight_grams.toString().split(".")[0]
-          : "",
-    };
-    setEditingProduct(sanitizedProduct);
+    // setEditingProduct(product);
     setShowModal(true);
   };
 
   const handleSuccess = () => {
-    const info = editingProduct ? "Diubah" : "Ditambah";
+    // const info = editingProduct ? "Diubah" : "Ditambah";
     setShowModal(false);
-    setEditingProduct(null);
-    setSelectedCategoryId(undefined);
-    fetchProducts();
-    setAlertMessage({ title: "Berhasil", message: `Produk Berhasil ${info}!` });
+    setSelectedCategoryId(null);
+    fetchInitialData();
+    setAlertMessage({ title: "Berhasil", message: `Proses Berhasil!` });
     setShowAlert(true);
   };
 
@@ -128,6 +128,10 @@ const ProductListPage: React.FC = () => {
     }
   };
 
+  // ========= BAGIAN FORM/TOMBOL EDIT/TAMBAH
+  const [showForm, setShowForm] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
   return (
     <IonPage>
       <IonHeader>
@@ -145,40 +149,48 @@ const ProductListPage: React.FC = () => {
         ) : (
           <IonAccordionGroup>
             {categories.map((category) => {
-              const categoryProducts = products.filter(
-                (product) => product.category_id === category.id,
-              );
+              const categoryProducts = products
+                .filter((product) => product.category_id === category.id)
+                .sort((a, b) => a.name.localeCompare(b.name));
               return (
-                <IonAccordion key={category.id} value={category.id}>
+                <IonAccordion key={category.id} value={String(category.id)}>
                   <IonItem slot="header">
                     <IonLabel>{category.name}</IonLabel>
                   </IonItem>
                   <div className="ion-padding" slot="content">
-                    <IonButton
-                      expand="block"
-                      onClick={() => handleAdd(category.id)}
-                    >
-                      Tambah {category.name}
-                    </IonButton>
                     <IonList>
                       {categoryProducts.map((product) => (
-                        <IonItem key={product.id}>
+                        <IonItem key={product.id} className="product-item">
+                          <div className="product-image">
+                            <IonImg
+                              src={
+                                product.img
+                                  ? `${FILE_BASE_URL}/${product.img}`
+                                  : "/assets/no-image.png"
+                              }
+                            />
+                          </div>
                           <IonLabel>
-                            <h2>
-                              {formatProductName(
-                                product.name,
-                                product.weight_grams,
-                              )}
-                            </h2>
-                            <p>
-                              Harga: Rp{" "}
-                              {parseInt(product.price).toLocaleString()}
-                            </p>
+                            <h2>{product.name}</h2>
+
+                            {product.variants.length === 0 ? (
+                              <IonText color="medium">Tidak ada varian</IonText>
+                            ) : (
+                              product.variants.map((variant) => (
+                                <p key={variant.variant_id}>
+                                  {formatWeight(variant.weight_grams)} — Rp{" "}
+                                  {parseInt(variant.price).toLocaleString()}
+                                </p>
+                              ))
+                            )}
                           </IonLabel>
+
                           <IonButton
                             fill="clear"
-                            slot="end"
-                            onClick={() => handleEdit(product)}
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setShowForm(true);
+                            }}
                           >
                             <IonIcon icon={pencil} />
                           </IonButton>
@@ -193,6 +205,16 @@ const ProductListPage: React.FC = () => {
                         </IonItem>
                       ))}
                     </IonList>
+                    <IonButton
+                      expand="block"
+                      onClick={() => {
+                        setSelectedProduct(null);
+                        setSelectedCategoryId(category.id);
+                        setShowForm(true);
+                      }}
+                    >
+                      Tambah {category.name}
+                    </IonButton>
                   </div>
                 </IonAccordion>
               );
@@ -201,17 +223,15 @@ const ProductListPage: React.FC = () => {
         )}
 
         <ProductForm
-          isOpen={showModal}
-          initialProduct={editingProduct}
-          initialCategoryId={selectedCategoryId}
-          onSuccess={handleSuccess}
+          isOpen={showForm}
+          initialProduct={selectedProduct}
+          initialCategory={Number(selectedCategoryId)}
           onDidDismiss={() => {
-            setShowModal(false);
-            setEditingProduct(null);
-            setSelectedCategoryId(undefined);
+            setShowForm(false);
+            fetchInitialData();
           }}
+          onSuccess={handleSuccess}
         />
-
         <IonAlert
           isOpen={showAlert}
           onDidDismiss={() => setShowAlert(false)}

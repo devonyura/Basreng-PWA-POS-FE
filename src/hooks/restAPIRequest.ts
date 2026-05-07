@@ -1,7 +1,10 @@
 import React from "react";
 import Cookies from "js-cookie";
-// const BASE_API_URL = "https://api.rindapermai.com"
-export const BASE_API_URL = "http://localhost:8080"
+
+export const BASE_API_URL = import.meta.env.VITE_BASE_API_URL;
+
+export const FILE_BASE_URL =
+	`${BASE_API_URL}${import.meta.env.VITE_FILE_BASE_PATH || '/uploads/products'}`;
 
 export interface ApiResponse {
 	success: boolean;
@@ -9,14 +12,20 @@ export interface ApiResponse {
 	error?: string;
 }
 
+export interface ProductVariant {
+	variant_id: number
+	product_id: number
+	weight_grams: number
+	price: number
+}
+
 export interface DataProduct {
-	id: string;
-	category_id: string;
-	subcategory_id: string;
-	descriptions: string;
-	name: string;
-	price: string;
-	weight_grams: string | number;
+	id: number
+	name: string
+	category_id: number
+	descriptions?: string
+	img?: string
+	variants?: ProductVariant[]
 }
 
 export interface Categories {
@@ -46,6 +55,7 @@ export interface TransactionPayload {
 interface Transaction {
 	transaction_code: string;
 	user_id: number;
+	branch_id: number;
 	date_time: string,
 	total_price: number;
 	cash_amount: number | null;
@@ -56,14 +66,14 @@ interface Transaction {
 	customer_address: string | null;
 	customer_phone: string | null;
 	notes: string | null;
-	branch_id: number;
-	reseller_id: number|null;
-	transaction_type: string|null;
-	shopee_code: string|null|undefined;
+	reseller_id: number | null;
+	transaction_type: string | null;
+	shopee_code: string | null | undefined;
 }
 
 interface TransactionDetails {
 	product_id: number;
+	variant_id: number;
 	quantity: number;
 	price: number;
 	subtotal: number;
@@ -136,48 +146,6 @@ export const checkOKResponse = (response: any) => {
 	}
 }
 
-
-// export const getAllData = async (setStudens: React.Dispatch<React.SetStateAction<Student[]>>) => {
-// 	try {
-// 		// Ambil token JWT dari localStorage
-// 		const TOKEN = Cookies.get("token");
-
-// 		// Cek apakah API online
-// 		const apiOnline = await isApiOnline();
-// 		console.log(apiOnline);
-// 		if (!apiOnline) {
-// 			return "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
-// 		}
-
-// 		// Konfigurasi request dengan header Authorization
-// 		const response = await fetch(`${BASE_API_URL}/api/siswa`, {
-// 			method: "GET",
-// 			credentials: "include",
-// 			headers: {
-// 				"Content-Type": "application/json",
-// 				"Authorization": `Bearer ${TOKEN}`,
-// 			},
-// 		});
-
-// 		// Check Response
-// 		checkOKResponse(response);
-
-// 		// Ubah data ke json format
-// 		const data = await response.json();
-
-// 		console.info("Status Request getAllData() : ", data.status);
-
-// 		// set State student
-// 		setStudens(data.data);
-
-// 	} catch (error) {
-// 		// Kirim error jika gagal request
-// 		console.error("Error Fetching Students", error);
-// 		return error;
-// 	}
-// };
-
-// setProducts: React.Dispatch<React.SetStateAction<DataProduct[]> | null>
 export const getDataProducts = async () => {
 	try {
 		// Ambil token JWT dari localStorage
@@ -190,7 +158,7 @@ export const getDataProducts = async () => {
 		}
 
 		// Konfigurasi request dengan header Authorization
-		const response = await fetch(`${BASE_API_URL}/api/products`, {
+		const response = await fetch(`${BASE_API_URL}/api/products/get-with-variant`, {
 			method: "GET",
 			credentials: "include",
 			headers: {
@@ -216,7 +184,7 @@ export const getDataProducts = async () => {
 
 	} catch (error) {
 		// Kirim error jika gagal request
-		console.error("Error Fetching Students", error);
+		console.error("Error Products", error);
 		return error;
 	}
 };
@@ -352,7 +320,7 @@ export const getBranch = async (id: number | null = null) => {
 };
 
 interface TransactionFilter {
-	username?: string;
+	username?: string | null;
 	branch?: number;
 	start_date?: string; // format ISO string (contoh: "2024-05-14")
 	end_date?: string;
@@ -608,3 +576,130 @@ export const updateData = async (id: string, updatedStudent: object): Promise<Ap
 		}
 	});
 };
+
+export const uploadPaymentProof = async (
+	file: File,
+	transactionCode: string
+): Promise<ApiResponse> => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			const TOKEN = Cookies.get("token");
+
+			const apiOnline = await isApiOnline();
+			if (!apiOnline) {
+				resolve({
+					success: false,
+					error: "Tidak dapat terhubung ke server.",
+				});
+				return;
+			}
+
+			const formData = new FormData();
+			formData.append("file", file);
+			formData.append("transaction_code", transactionCode);
+
+			const response = await fetch(
+				`${BASE_API_URL}/api/payment-proofs/upload`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						Authorization: `Bearer ${TOKEN}`,
+						// ❗ JANGAN pakai Content-Type di FormData
+					},
+					body: formData,
+				}
+			);
+
+			checkOKResponse(response);
+
+			const data = await response.json();
+
+			console.info("Upload Payment Proof:", data);
+
+			resolve({
+				success: true,
+				data: data,
+			});
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : "Terjadi kesalahan";
+
+			console.error("Error uploadPaymentProof:", error);
+
+			reject({
+				success: false,
+				error: errorMessage,
+			});
+		}
+	});
+};
+
+export const getPaymentProofByTransaction = async (
+	transactionCode: string
+): Promise<ApiResponse> => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			const TOKEN = Cookies.get("token");
+
+			const apiOnline = await isApiOnline();
+			if (!apiOnline) {
+				resolve({
+					success: false,
+					error: "Tidak dapat terhubung ke server"
+				})
+			}
+
+			const response = await fetch(
+				`${BASE_API_URL}/api/payment-proofs/transaction/${transactionCode}`,
+				{
+					method: "GET",
+					credentials: "include",
+					headers: {
+						Authorization: `Bearer ${TOKEN}`,
+					},
+				}
+			)
+
+			checkOKResponse(response);
+
+			const data = await response.json();
+
+			resolve({
+				success: true,
+				data: data.data
+			});
+		} catch (error) {
+			reject({
+				success: false,
+				error: error instanceof Error ? error.message : "Error",
+			})
+		}
+	})
+}
+
+export const generateReceiptImage = async (payload: any) => {
+	try {
+		const res = await fetch(
+			"https://receipt-service-production-1a48.up.railway.app/api/generate-receipt",
+			// "http://localhost:3000/api/generate-receipt",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload)
+			}
+		)
+
+		const result = await res.json()
+
+		if (!result.success) {
+			throw new Error("Gagal generate image")
+		}
+
+		return result.data.base64;
+	} catch (err) {
+		throw err;
+	}
+}

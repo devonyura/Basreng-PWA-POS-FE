@@ -1,12 +1,31 @@
-export function rupiahFormat(value: string | number, withRp: boolean = true) {
-  // Menghapus titik desimal yang tidak diperlukan
-  let cleanValue = value.toString().replace(/\.00$/, "").replace(/\./g, "");
+export function rupiahFormat(value: string | number | null | undefined, withRp: boolean = true) {
+  if (value === null || value === undefined || value === "") {
+    return withRp ? "Rp.0" : "0";
+  }
 
-  // Konversi ke angka
+  let cleanValue = value
+    .toString()
+    .replace(/\.00$/, "")
+    .replace(/\./g, "");
+
   let number = parseInt(cleanValue, 10);
 
-  return (withRp) ? 'Rp.' + number.toLocaleString("id-ID") : '' + number.toLocaleString("id-ID");
+  if (isNaN(number)) {
+    number = 0;
+  }
+
+  return withRp
+    ? "Rp." + number.toLocaleString("id-ID")
+    : number.toLocaleString("id-ID");
 }
+
+export const rupiahFormatBarChart = (number: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(number);
+};
 
 export function parseWeightGrams(quantity?: string | number | null) {
   if (quantity === null || quantity === undefined || quantity === '') {
@@ -26,13 +45,41 @@ export function parseWeightGrams(quantity?: string | number | null) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
-export function formatProductName(name: string, quantity?: string | number | null) {
-  const parsedQuantity = parseWeightGrams(quantity);
-  if (!parsedQuantity) {
+export function formatProductName(
+  name: string,
+  quantity?: string | number | null
+) {
+  const formattedWeight = formatWeight(quantity);
+
+  if (!formattedWeight) {
     return name;
   }
 
-  return `${name} (${parsedQuantity}gr)`;
+  return `${name} (${formattedWeight})`;
+}
+
+export function formatWeight(
+  quantity?: string | number | null
+): string | null {
+  if (quantity === undefined || quantity === null || quantity === "") {
+    return null;
+  }
+
+  const grams = Number(quantity);
+
+  if (isNaN(grams) || grams <= 0) {
+    return null;
+  }
+
+  // ✅ Convert ke KG jika >= 1000 gr
+  if (grams >= 1000) {
+    const kg = grams / 1000;
+
+    // hilangkan .0 jika bulat
+    return `${Number.isInteger(kg) ? kg : kg.toFixed(2)}kg`;
+  }
+
+  return `${grams}gr`;
 }
 
 
@@ -68,7 +115,27 @@ export const shortDate = (tanggalString: string): string => {
 
   const hari = date.getDate();
   const bulan = bulanPendek[date.getMonth()];
-  const tahun = date.getFullYear().toString().slice(-2); // ambil 2 digit terakhir
+  const tahun = date.getFullYear().toString(); // ambil 2 digit terakhir
 
   return `${hari} ${bulan} ${tahun}`;
 };
+
+export function formatProductWithWeight(
+  name: string,
+  weight?: string | number | null
+): string {
+  if (!name) return "-";
+
+  const grams = Number(weight);
+
+  if (!weight || isNaN(grams) || grams <= 0) {
+    return name;
+  }
+
+  if (grams >= 1000) {
+    const kg = grams / 1000;
+    return `${name} (${Number.isInteger(kg) ? kg : kg.toFixed(2)}kg)`;
+  }
+
+  return `${name} (${grams}gr)`; // ✅ INI YANG KEMARIN HILANG
+}

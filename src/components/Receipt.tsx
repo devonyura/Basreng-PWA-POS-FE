@@ -20,6 +20,8 @@ import { getBranch } from "../hooks/restAPIRequest";
 import { useAuth } from "../hooks/useAuthCookie";
 import "./Receipt.css";
 import { textAlign } from "html2canvas/dist/types/css/property-descriptors/text-align";
+import { CartItem } from "../../src/redux/cartSlice";
+import { date } from "zod";
 
 interface ReceiptProps {
   // branch: string[];
@@ -35,19 +37,15 @@ interface ReceiptProps {
     address: string;
     notes: string;
   };
-  cartItems: {
-    id: string;
-    name: string;
-    price: number;
-    descriptions: string;
-    quantity: number;
-    weight_grams?: number;
-  }[];
+  cartItems: CartItem[];
   receiptNoteNumber: string | null;
-  discount: number | string;
+  discount: number;
   is_reseller: boolean;
   isShopeeOrder: boolean;
   shopeeCode: string | null | undefined;
+  paymentMethod: string | null | undefined;
+  totalBeforeDiscount: number;
+  date?: string;
   // branchData: BranchData | null;
 }
 
@@ -70,6 +68,9 @@ const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>((props, ref) => {
     is_reseller,
     isShopeeOrder,
     shopeeCode,
+    paymentMethod,
+    totalBeforeDiscount,
+    date,
   } = props;
 
   const { username, branchData } = useAuth();
@@ -109,8 +110,8 @@ const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>((props, ref) => {
         </thead>
         <tbody>
           {cartItems.map((item) => (
-            <>
-              <tr key={item.id}>
+            <React.Fragment key={item.variant_id}>
+              <tr key={item.variant_id}>
                 <td>{formatProductName(item.name, item.weight_grams)}</td>
                 <td className="small-text">{item.quantity}x</td>
                 <td>{rupiahFormat(item.price, false)}</td>
@@ -122,8 +123,22 @@ const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>((props, ref) => {
                   <td colSpan={3}>{item.descriptions}</td>
                 </tr>
               )}
-            </>
+            </React.Fragment>
           ))}
+          <tr>
+            <td className="tr-title" colSpan={3}>
+              Pembayaran
+            </td>
+            <td className="tr-title">{paymentMethod}</td>
+          </tr>
+          <tr>
+            <td className="tr-title" colSpan={3}>
+              Total
+            </td>
+            <td className="tr-title">
+              {rupiahFormat(totalBeforeDiscount, false)}
+            </td>
+          </tr>
           {is_reseller && (
             <tr>
               <td className="tr-title" colSpan={3}>
@@ -132,12 +147,14 @@ const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>((props, ref) => {
               <td className="tr-title">-{rupiahFormat(discount, false)}</td>
             </tr>
           )}
-          <tr>
-            <td className="tr-title" colSpan={3}>
-              Total
-            </td>
-            <td className="tr-title">{rupiahFormat(total, false)}</td>
-          </tr>
+          {is_reseller && (
+            <tr>
+              <td className="tr-title" colSpan={3}>
+                Total (diskon)
+              </td>
+              <td className="tr-title">{rupiahFormat(total, false)}</td>
+            </tr>
+          )}
           <tr>
             <td colSpan={3}>Tunai</td>
             <td>{rupiahFormat(cash, false)}</td>
@@ -192,7 +209,9 @@ const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>((props, ref) => {
             </tr>
           )}
           <tr>
-            <td colSpan={3}>Tgl. 28-10-2025</td>
+            <td colSpan={3}>
+              Tgl. {date ?? new Date().toLocaleDateString("id-ID")}
+            </td>
             <td>Cabang: {branchData?.branch_name}</td>
           </tr>
           <tr>
