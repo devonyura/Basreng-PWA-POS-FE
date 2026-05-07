@@ -77,20 +77,20 @@ const TransactionHistory: React.FC = () => {
     (b) => b.branch_id === selectedBranchId,
   );
 
-  useIonViewWillEnter(() => {
-    const hasReloaded = sessionStorage.getItem("hasReloaded");
+  // useIonViewWillEnter(() => {
+  //   const hasReloaded = sessionStorage.getItem("hasReloaded");
 
-    if (!hasReloaded) {
-      sessionStorage.setItem("hasReloaded", "true");
-      setTimeout(() => {
-        window.location.reload();
-      }, 300);
-    }
-  }, []);
+  //   if (!hasReloaded) {
+  //     sessionStorage.setItem("hasReloaded", "true");
+  //     setTimeout(() => {
+  //       window.location.href = '';
+  //     }, 300);
+  //   }
+  // }, []);
 
-  useIonViewWillLeave(() => {
-    sessionStorage.removeItem("hasReloaded");
-  });
+  // useIonViewWillLeave(() => {
+  //   sessionStorage.removeItem("hasReloaded");
+  // });
 
   const kasirLabel = selectedKasir?.username || "Semua Kasir";
   const branchLabel = selectedBranch?.branch_name || "Semua Cabang";

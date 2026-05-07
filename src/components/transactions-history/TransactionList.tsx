@@ -48,7 +48,7 @@ const TransactionList: React.FC<Props> = ({ data, onClickItem, onReload }) => {
       ) : (
         <div style={{ textAlign: "center", marginTop: "20px" }}>
           <p>Tidak ada transaksi saat ini</p>
-          <IonButton onClick={onReload}>Ambil Ulang Data</IonButton>
+          <IonButton onClick={() => window.location.reload()}>Ambil Ulang Data</IonButton>
         </div>
       )}
     </>

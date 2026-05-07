@@ -23,6 +23,7 @@ import {
   IonChip,
   IonSpinner,
   IonToast,
+  useIonViewWillEnter,
 } from "@ionic/react";
 import { statsChart, cashOutline, refresh } from "ionicons/icons";
 import {
@@ -75,6 +76,18 @@ export interface Summary {
 }
 
 const Dashboard: React.FC = () => {
+
+    useIonViewWillEnter(() => {
+      const hasReloaded = sessionStorage.getItem("hasReloaded");
+  
+      if (!hasReloaded) {
+        sessionStorage.setItem("hasReloaded", "true");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    }, []);
+  
   const [summary, setSummary] = useState<Summary>();
 
   const [incomeByBranch, setIncomeByBranch] = useState<BranchIncome[]>([]);
