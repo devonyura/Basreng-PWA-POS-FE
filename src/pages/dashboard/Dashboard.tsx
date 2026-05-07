@@ -76,17 +76,6 @@ export interface Summary {
 }
 
 const Dashboard: React.FC = () => {
-
-    useIonViewWillEnter(() => {
-      const hasReloaded = sessionStorage.getItem("hasReloaded");
-  
-      if (!hasReloaded) {
-        sessionStorage.setItem("hasReloaded", "true");
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      }
-    }, []);
   
   const [summary, setSummary] = useState<Summary>();
 
