@@ -155,6 +155,7 @@ const TransactionHistoryDetail: React.FC<TransactionHistoryDetailProps> = ({
       // CONVERT BASE64 -> FILE
       // =========================
       const blob = await (await fetch(base64)).blob();
+      console.log("blob:", blob);
 
       const file = new File(
         [blob],
@@ -195,7 +196,6 @@ const TransactionHistoryDetail: React.FC<TransactionHistoryDetailProps> = ({
       setIsSharing(false);
     }
   };
-
   return (
     <>
       <IonModal ref={modal} isOpen={isOpen} onDidDismiss={onDidDismiss}>

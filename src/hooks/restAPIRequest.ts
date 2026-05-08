@@ -681,8 +681,7 @@ export const getPaymentProofByTransaction = async (
 export const generateReceiptImage = async (payload: any) => {
 	try {
 		const res = await fetch(
-			"https://receipt-service-production-1a48.up.railway.app/api/generate-receipt",
-			// "http://localhost:3000/api/generate-receipt",
+			`${BASE_API_URL}/api/receipt/generate`,
 			{
 				method: "POST",
 				headers: {
