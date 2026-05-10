@@ -26,23 +26,10 @@ import BranchAlert from "../../components/transactions-history/alerts/BranchAler
 import DateFilterAlert from "../../components/transactions-history/alerts/DateFilterAlert";
 import { refresh } from "ionicons/icons";
 import LoadingScreen from "../../components/LoadingScreen";
-
-export interface Branch {
-  branch_id: string;
-  branch_name: string;
-  branch_address: string;
-  created_at: string;
-}
+import { Branch } from "../../hooks/restAPIBranch";
+import { User } from "../../hooks/restAPIUsers";
 
 export type UserRole = "admin" | "owner" | "manager" | "kasir";
-
-export interface User {
-  id: string;
-  username: string;
-  branch_id: string;
-  role: UserRole;
-  created_at: string;
-}
 
 const TransactionHistory: React.FC = () => {
   const modalDetail = useRef<HTMLIonModalElement>(null);

@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import dayjs from "dayjs";
 
 import { getTransactionHistory } from "./restAPIRequest";
-import { getUsers } from "./restAPIUsers";
-import { getBranches } from "./restAPIBranch";
+import { getUsers, User } from "./restAPIUsers";
+import { getBranches, Branch } from "./restAPIBranch";
 
 interface Params {
   role?: string | null;
@@ -25,8 +25,8 @@ export const useTransactionHistory = ({
   enabled = true,
 }: Params) => {
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [branchList, setBranchList] = useState<any[]>([]);
-  const [usersList, setUsersList] = useState<any[]>([]);
+  const [branchList, setBranchList] = useState<Branch[]>([]);
+  const [usersList, setUsersList] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // ======================

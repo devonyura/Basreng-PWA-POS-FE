@@ -17,7 +17,7 @@ import {
 import { add, remove, trashBin } from "ionicons/icons";
 import { rupiahFormat, formatProductName } from "../hooks/formatting";
 import { getBranch } from "../hooks/restAPIRequest";
-import { useAuth } from "../hooks/useAuthCookie";
+import { useAuth, BranchData } from "../hooks/useAuthCookie";
 import "./Receipt.css";
 import { textAlign } from "html2canvas/dist/types/css/property-descriptors/text-align";
 import { CartItem } from "../../src/redux/cartSlice";
@@ -49,11 +49,7 @@ interface ReceiptProps {
   // branchData: BranchData | null;
 }
 
-export interface BranchData {
-  branch_id: string;
-  branch_name: string;
-  branch_address: string;
-}
+
 
 const Receipt = React.forwardRef<HTMLDivElement, ReceiptProps>((props, ref) => {
   const {

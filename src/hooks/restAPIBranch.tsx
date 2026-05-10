@@ -5,15 +5,19 @@ import Cookies from "js-cookie";
 
 // Tipe untuk data cabang
 export interface Branch {
-  branch_id?: string;
-  branch_name?: string;
+  branch_id: string;
+  branch_name: string;
   branch_address?: string;
+  latitude?: string;
+  longitude?: string;
 }
 
 // Tipe untuk payload kirim data
 export interface BranchPayload {
   branch_name?: string;
   branch_address?: string;
+  latitude?: string;
+  longitude?: string;
 }
 
 // Ambil semua cabang
@@ -169,4 +173,33 @@ export const deleteBranch = async (id: string): Promise<ApiResponse> => {
       reject("Gagal hapus cabang: " + errorMessage);
     }
   });
+};
+// Ambil cabang terdekat berdasarkan lokasi
+export const getNearestBranch = async (lat: number, lng: number): Promise<Branch | null> => {
+  try {
+    const TOKEN = Cookies.get("token");
+
+    const apiOnline = await isApiOnline();
+    if (!apiOnline) throw new Error("Tidak dapat terhubung ke server. Periksa koneksi Anda.");
+
+    const response = await fetch(`${BASE_API_URL}/api/branch/nearest?lat=${lat}&lng=${lng}`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${TOKEN}`,
+      },
+    });
+
+    if (response.status === 404) return null;
+
+    checkOKResponse(response);
+
+    const data = await response.json();
+    console.log("Nearest branch:", data.data);
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching nearest branch:", error);
+    return null;
+  }
 };

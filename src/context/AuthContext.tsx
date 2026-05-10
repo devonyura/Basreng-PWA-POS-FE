@@ -1,10 +1,7 @@
 import { createContext, useContext } from "react";
 
-export interface BranchData {
-  branch_id: string;
-  branch_name?: string;
-  branch_address?: string;
-}
+import { Branch as BranchData } from "../hooks/restAPIBranch";
+export type { BranchData };
 
 interface AuthContextType {
   token: string | null;
@@ -16,6 +13,7 @@ interface AuthContextType {
   isAuthReady: boolean;
   login: (jwt: string) => void;
   logout: () => void;
+  setBranchAfterLocation: (id: string, data: BranchData) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -79,17 +77,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     Cookies.set("role", payload.data.role);
     Cookies.set("username", payload.data.username); // ✅ fix bug
     Cookies.set("id_user", payload.data.id);
-    Cookies.set("branch_id", payload.data.branch_id);
+    // Cookies.set("branch_id", payload.data.branch_id); // ⛔ Jangan set branch_id otomatis agar LocationBranchModal muncul
 
     setToken(jwtToken);
     setRole(payload.data.role);
     setUsername(payload.data.username);
     setIdUser(payload.data.id);
-    setBranchID(payload.data.branch_id);
+    // setBranchID(payload.data.branch_id); // ⛔ Biarkan null agar memicu modal lokasi
 
-    if (payload.data.branch_id) {
-      fetchBranchData(payload.data.branch_id);
-    }
+    // if (payload.data.branch_id) {
+    //   fetchBranchData(payload.data.branch_id);
+    // }
   };
 
   const logout = () => {
@@ -108,6 +106,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setBranchData(null);
 
     history.replace("/login");
+  };
+
+  const setBranchAfterLocation = (id: string, data: BranchData) => {
+    Cookies.set("branch_id", id, { expires: COOKIE_EXPIRATION_MINUTES / (24 * 60) });
+    Cookies.set("branch_data", JSON.stringify(data), {
+      expires: COOKIE_EXPIRATION_MINUTES / (24 * 60),
+    });
+    setBranchID(id);
+    setBranchData(data);
   };
 
   useEffect(() => {
@@ -147,6 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isAuthReady,
         login,
         logout,
+        setBranchAfterLocation,
       }}
     >
       {children}
