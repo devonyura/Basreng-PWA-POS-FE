@@ -57,11 +57,7 @@ interface ReceiptHistoryProps {
   reseller: Reseller | undefined;
 }
 
-export interface BranchData {
-  branch_id: string;
-  branch_name: string;
-  branch_address: string;
-}
+
 
 const ReceiptHistory = React.forwardRef<HTMLDivElement, ReceiptHistoryProps>(
   (props, ref) => {

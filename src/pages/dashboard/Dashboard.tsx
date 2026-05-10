@@ -56,6 +56,7 @@ import {
 import { formatProductWithWeight, rupiahFormat } from "../../hooks/formatting";
 import DashboardMenu from "../../components/DashboardMenu";
 import { generateDailyReport } from "../../utils/generateDailyReport";
+import LocationBranchModal from "../../components/LocationBranchModal";
 
 interface LocationState {
   isTokenExpired?: boolean;
@@ -94,7 +95,7 @@ const Dashboard: React.FC = () => {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loadingChart, setLoadingChart] = useState(true);
   const [errorChart, setErrorChart] = useState<string | null>(null);
-  const { logout, role, username } = useAuth();
+  const { logout, role, username, branchID } = useAuth();
 
   const fetchData = async () => {
     console.log("username", username);
@@ -468,6 +469,7 @@ const Dashboard: React.FC = () => {
           }
           hideButton={alert.hideButton}
         />
+        <LocationBranchModal isOpen={!branchID} />
       </IonPage>
     </>
   );

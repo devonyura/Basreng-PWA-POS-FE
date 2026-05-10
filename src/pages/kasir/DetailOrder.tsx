@@ -29,7 +29,8 @@ import { useAuth } from "../../hooks/useAuthCookie";
 import AlertInfo, { AlertState } from "../../components/AlertInfo";
 import "./DetailOrder.css";
 import qrcode from "../../../public/img/qr/images.png";
-import Receipt, { BranchData } from "../../components/Receipt";
+import Receipt from "../../components/Receipt";
+import { BranchData } from "../../hooks/useAuthCookie";
 
 // Redux
 import { useSelector, useDispatch } from "react-redux";
@@ -210,24 +211,9 @@ const DetailOrder: React.FC = () => {
     }
   }, [cashGiven, total]);
 
-  const [branchDataState, setBranchDataState] = useState<BranchData | null>(
-    null,
-  );
 
-  // Load data cabang
-  useEffect(() => {
-    const fetchBranch = async () => {
-      try {
-        const data = await getBranch(Number(branchID));
-        setBranchDataState(data);
-        console.log(branchDataState);
-      } catch (err) {
-        console.error("Gagal load branch info:", err);
-      }
-    };
 
-    fetchBranch();
-  }, []);
+
 
   useEffect(() => {
     const fetchResellers = async () => {
@@ -252,7 +238,7 @@ const DetailOrder: React.FC = () => {
   const handleSubmitTransaction = async () => {
     setReceiptNoteNumber(generateReceiptNumber(Number(branchID), username));
 
-    if (!branchDataState) {
+    if (!branchData) {
       console.warn("Branch belum dimuat.");
       setIsSubmitting(false);
       return;

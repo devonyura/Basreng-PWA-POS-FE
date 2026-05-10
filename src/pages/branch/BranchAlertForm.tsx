@@ -10,6 +10,8 @@ interface BranchAlertFormProps {
     branch_id?: string | null;
     branch_name?: string | null;
     branch_address?: string | null;
+    latitude?: string | null;
+    longitude?: string | null;
   } | null;
 }
 
@@ -24,13 +26,20 @@ const BranchAlertForm: React.FC<BranchAlertFormProps> = ({
   const handleSave = async (nameInputFromAlert: any) => {
     const nameInput = (nameInputFromAlert.name || '').trim();
     const addressInput = (nameInputFromAlert.address || '').trim();
+    const latInput = (nameInputFromAlert.latitude || '').trim();
+    const lngInput = (nameInputFromAlert.longitude || '').trim();
     if (!nameInput || !addressInput) {
       setShowError(true);
       return false;
     }
 
     try {
-      const payload: BranchPayload = { branch_name: nameInput, branch_address: addressInput };
+      const payload: BranchPayload = { 
+        branch_name: nameInput, 
+        branch_address: addressInput,
+        latitude: latInput,
+        longitude: lngInput
+      };
 
       if (initialBranch && initialBranch.branch_id) {
         await updateBranch(payload, initialBranch.branch_id);
@@ -64,6 +73,18 @@ const BranchAlertForm: React.FC<BranchAlertFormProps> = ({
             type: 'text',
             placeholder: 'Alamat Cabang',
             value: initialBranch?.branch_address
+          },
+          {
+            name: 'latitude',
+            type: 'text',
+            placeholder: 'Latitude',
+            value: initialBranch?.latitude
+          },
+          {
+            name: 'longitude',
+            type: 'text',
+            placeholder: 'Longitude',
+            value: initialBranch?.longitude
           }
         ]}
         buttons={[
