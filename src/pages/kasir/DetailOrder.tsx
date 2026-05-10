@@ -187,7 +187,7 @@ const DetailOrder: React.FC = () => {
 
   let change = calculateChange(Number(cashGiven), total);
 
-  const { username, branchID, idUser } = useAuth();
+  const { username, branchID, idUser, branchData } = useAuth();
   const [receiptNoteNumber, setReceiptNoteNumber] = useState<null | string>(
     null,
   );

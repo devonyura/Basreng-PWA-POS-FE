@@ -1,3 +1,3 @@
-import{an as r,ao as i,ap as c,aq as d,ar as l}from"./ionic-BcNwD73g.js";/*!
+import{ao as r,ap as i,aq as c,ar as d,as as l}from"./ionic-BP7GLr0u.js";/*!
  * (C) Ionic http://ionicframework.com - MIT License
  */const w=()=>{const e=window;e.addEventListener("statusTap",()=>{r(()=>{const o=e.innerWidth,s=e.innerHeight,n=document.elementFromPoint(o/2,s/2);if(!n)return;const t=i(n);t&&new Promise(a=>c(t,a)).then(()=>{d(async()=>{t.style.setProperty("--overflow","hidden"),await l(t,300),t.style.removeProperty("--overflow")})})})})};export{w as startStatusTap};
