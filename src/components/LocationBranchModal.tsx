@@ -59,13 +59,16 @@ const LocationBranchModal: React.FC<LocationBranchModalProps> = ({ isOpen }) => 
         return;
       }
 
-      // navigator.geolocation.getCurrentPosition(
-        // async (position) => {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
           // MOCK LOKASI UNTUK TESTING
-          const latitude = -0.9021142776029807;
-          const longitude = 119.87529591098223;
+          // const latitude = -0.9021142776029807;
+          // const longitude = 119.87529591098223;
           // setStatusMessage(`Lokasi MOCK digunakan (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Mencari cabang terdekat...`);
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
           
+          setStatusMessage(`Lokasi akurat terdeteksi (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Mencari cabang terdekat...`);
           try {
             const nearest = await getNearestBranch(latitude, longitude);
             console.log("Nearest branch:", nearest);
@@ -82,16 +85,16 @@ const LocationBranchModal: React.FC<LocationBranchModalProps> = ({ isOpen }) => 
             setLoading(false);
             setShowForm(true);
           }
-        // },
-        // (error) => {
-        //   console.error('Geolocation error:', error);
-        //   setStatusMessage('Gagal mendapatkan lokasi. Silahkan pilih manual.');
-        //   setLoading(false);
-        //   setShowForm(true);
-        // },
-        // { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      // );
-    }, 6000);
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          setStatusMessage('Gagal mendapatkan lokasi. Silahkan pilih manual.');
+          setLoading(false);
+          setShowForm(true);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }, 10000);
   };
 
   const handleConfirm = () => {
