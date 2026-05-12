@@ -164,6 +164,7 @@ const LoginForm: React.FC = () => {
               placeholder="Masukkan Username"
               value={username}
               onIonInput={(e) => setUsername(e.detail.value!)}
+              className="username-input"
             />
           </IonItem>
           <IonItem>

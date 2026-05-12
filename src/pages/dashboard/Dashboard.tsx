@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loadingChart, setLoadingChart] = useState(true);
   const [errorChart, setErrorChart] = useState<string | null>(null);
-  const { logout, role, username, branchID } = useAuth();
+  const { logout, role, username, branchID, token } = useAuth();
 
   const fetchData = async () => {
     console.log("username", username);
@@ -469,7 +469,7 @@ const Dashboard: React.FC = () => {
           }
           hideButton={alert.hideButton}
         />
-        <LocationBranchModal isOpen={!branchID} />
+        <LocationBranchModal isOpen={!!token && !branchID} />
       </IonPage>
     </>
   );

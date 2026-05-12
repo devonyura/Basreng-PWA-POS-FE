@@ -38,3 +38,11 @@ ion-segment-button.ios::part(native) {
 ion-segment-button.ios::part(indicator-background) {
   border-radius: 20px;
 }
+
+.username-input {
+  text-transform: none !important;
+}
+
+.username-input::part(native) {
+  text-transform: none !important;
+}
