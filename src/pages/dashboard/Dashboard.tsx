@@ -53,10 +53,9 @@ import {
   getTransactionsReport,
   BranchIncome,
 } from "../../hooks/restAPIDashboard";
-import { formatProductWithWeight, rupiahFormat } from "../../hooks/formatting";
+import { formatProductWithWeight, rupiahFormat, formatDateLocal } from "../../hooks/formatting";
 import DashboardMenu from "../../components/DashboardMenu";
 import { generateDailyReport } from "../../utils/generateDailyReport";
-import LocationBranchModal from "../../components/LocationBranchModal";
 
 interface LocationState {
   isTokenExpired?: boolean;
@@ -95,7 +94,7 @@ const Dashboard: React.FC = () => {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loadingChart, setLoadingChart] = useState(true);
   const [errorChart, setErrorChart] = useState<string | null>(null);
-  const { logout, role, username, branchID, token } = useAuth();
+  const { logout, role, username, branchID, token, branchData } = useAuth();
 
   const fetchData = async () => {
     console.log("username", username);
@@ -154,8 +153,10 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
 
   // setup Alert
   const [alert, setAlert] = useState<AlertState>({
@@ -219,7 +220,7 @@ const Dashboard: React.FC = () => {
                       total_sold: Number(item.total_sold || 0),
                       total_sales: Number(item.total_sales || 0),
                     })),
-                    date: new Date().toISOString().slice(0, 10),
+                    date: formatDateLocal(),
                   });
                 }}
               >
@@ -255,6 +256,11 @@ const Dashboard: React.FC = () => {
                                 ? "Transaksi Cabang Kamu"
                                 : "Semua Cabang"}
                             </h5>
+                            {branchData?.branch_name && (
+                              <p style={{ marginTop: "-5px", marginBottom: "10px", color: "var(--ion-color-medium)", fontSize: "0.9rem" }}>
+                                Lokasi: <strong>{branchData.branch_name}</strong>
+                              </p>
+                            )}
                             <h2>{rupiahFormat(summary?.total_sales || 0)}</h2>
                             <h4>
                               Dari{" "}
@@ -267,6 +273,41 @@ const Dashboard: React.FC = () => {
                         </IonCardContent>
                       </IonCol>
                     </IonRow>
+                    {summary?.payment_summary && (
+                      <IonRow className="ion-padding-horizontal ion-padding-bottom">
+                        <IonCol size="12">
+                          <IonCardTitle style={{ fontSize: "1.1rem", marginBottom: "8px", marginTop: "8px" }}>
+                            Ringkasan Pembayaran:
+                          </IonCardTitle>
+                          <IonList>
+                            <IonItem>
+                              <IonLabel>Tunai (Cash)</IonLabel>
+                              <IonText color="success">
+                                <strong>{rupiahFormat(summary.payment_summary.cash || 0)}</strong>
+                              </IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>Transfer Bank</IonLabel>
+                              <IonText color="primary">
+                                <strong>{rupiahFormat(summary.payment_summary.transfer_bank || 0)}</strong>
+                              </IonText>
+                            </IonItem>
+                            <IonItem>
+                              <IonLabel>QRIS</IonLabel>
+                              <IonText color="tertiary">
+                                <strong>{rupiahFormat(summary.payment_summary.qris || 0)}</strong>
+                              </IonText>
+                            </IonItem>
+                            <IonItem lines="none">
+                              <IonLabel>Shopee</IonLabel>
+                              <IonText color="warning">
+                                <strong>{rupiahFormat(summary.payment_summary.shopee || 0)}</strong>
+                              </IonText>
+                            </IonItem>
+                          </IonList>
+                        </IonCol>
+                      </IonRow>
+                    )}
                   </IonGrid>
                 </IonCard>
                 {!isKasir && (
@@ -281,15 +322,18 @@ const Dashboard: React.FC = () => {
                         ) : (
                           <IonList>
                             {incomeByBranch.map((branch, idx) => (
-                              <IonItem key={idx}>
-                                <IonLabel>
-                                  {branch.branch_name}:<br></br>
-                                  <strong>
-                                    {rupiahFormat(branch.total_income)}
-                                  </strong>{" "}
-                                  dari{" "}
-                                  <strong> {branch.total_transactions}</strong>{" "}
-                                  transaksi
+                              <IonItem key={idx} style={{ alignItems: "flex-start" }}>
+                                <IonLabel className="ion-text-wrap">
+                                  <h2><strong>{branch.branch_name}</strong></h2>
+                                  <p style={{ marginTop: "4px" }}>
+                                    Total Pendapatan: <strong>{rupiahFormat(Number(branch.total_income || 0))}</strong> dari <strong>{branch.total_transactions}</strong> transaksi
+                                  </p>
+                                  <div style={{ marginTop: "8px", fontSize: "0.85rem" }}>
+                                    <IonText color="success">Tunai: <strong>{rupiahFormat(Number(branch.total_income_cash || 0))}</strong></IonText><br/>
+                                    <IonText color="primary">Transfer Bank: <strong>{rupiahFormat(Number(branch.total_income_transfer_bank || 0))}</strong></IonText><br/>
+                                    <IonText color="tertiary">QRIS: <strong>{rupiahFormat(Number(branch.total_income_qris || 0))}</strong></IonText><br/>
+                                    <IonText color="warning">Shopee: <strong>{rupiahFormat(Number(branch.total_income_shopee || 0))}</strong></IonText>
+                                  </div>
                                 </IonLabel>
                               </IonItem>
                             ))}
@@ -469,7 +513,6 @@ const Dashboard: React.FC = () => {
           }
           hideButton={alert.hideButton}
         />
-        <LocationBranchModal isOpen={!!token && !branchID} />
       </IonPage>
     </>
   );

@@ -51,15 +51,19 @@ const KasirPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const {
     products,
-    isLoading,
+    isLoading: productLoading,
     error: productError,
   } = useSelector((state: RootState) => state.products);
-  const { categories, error: categoryError } = useSelector(
-    (state: RootState) => state.categories,
-  );
-  const { subCategories, error: subCategoryError } = useSelector(
-    (state: RootState) => state.subCategories,
-  );
+  const {
+    categories,
+    isLoading: categoryLoading,
+    error: categoryError,
+  } = useSelector((state: RootState) => state.categories);
+  const {
+    subCategories,
+    isLoading: subCategoryLoading,
+    error: subCategoryError,
+  } = useSelector((state: RootState) => state.subCategories);
 
   // Jalankan fetchProducts saat pertama kali komponen dimuat
   useIonViewWillEnter(() => {
@@ -88,14 +92,10 @@ const KasirPage: React.FC = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
 
   useEffect(() => {
-    if (
-      products.length > 0 &&
-      categories.length > 0 &&
-      subCategories.length > 0
-    ) {
+    if (!productLoading && !categoryLoading && !subCategoryLoading) {
       setIsAppLoading(false);
     }
-  }, [products, categories, subCategories]);
+  }, [productLoading, categoryLoading, subCategoryLoading]);
 
   if (isAppLoading) {
     return <LoadingScreen />;

@@ -26,13 +26,25 @@ const DateFilterAlert: React.FC<Props> = ({
           checked: selectedValue === "today",
         },
         {
-          label: "7 Hari Terakhir",
+          label: "kemarin & hari ini",
+          type: "radio",
+          value: "1",
+          checked: selectedValue === "1",
+        },
+        {
+          label: "hari ini & 2 hari ke belakang",
+          type: "radio",
+          value: "2",
+          checked: selectedValue === "2",
+        },
+        {
+          label: "hari ini & 7 hari ke belakang",
           type: "radio",
           value: "7",
           checked: selectedValue === "7",
         },
         {
-          label: "10 Hari Terakhir",
+          label: "hari ini & 10 hari ke belakang",
           type: "radio",
           value: "10",
           checked: selectedValue === "10",

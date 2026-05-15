@@ -28,7 +28,7 @@ export const getBranches = async (): Promise<Branch[] | any> => {
     const apiOnline = await isApiOnline();
     if (!apiOnline) throw new Error("Tidak dapat terhubung ke server. Periksa koneksi Anda.");
 
-    const response = await fetch(`${BASE_API_URL}/api/branch`, {
+    const response = await fetch(`${BASE_API_URL}/branch`, {
       method: "GET",
       credentials: "include",
       headers: {

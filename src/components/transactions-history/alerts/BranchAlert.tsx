@@ -34,12 +34,20 @@ const BranchAlert: React.FC<Props> = ({
           },
         },
       ]}
-      inputs={branches.map((b) => ({
-        label: b.branch_name,
-        type: "radio",
-        value: b.branch_id,
-        checked: b.branch_id === selectedBranchId,
-      }))}
+      inputs={[
+        {
+          label: "Semua Cabang",
+          type: "radio",
+          value: "all",
+          checked: !selectedBranchId || selectedBranchId === "all",
+        },
+        ...branches.map((b) => ({
+          label: b.branch_name,
+          type: "radio",
+          value: b.branch_id,
+          checked: b.branch_id === selectedBranchId,
+        } as const)),
+      ]}
     />
   );
 };

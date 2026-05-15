@@ -12,6 +12,7 @@ import {
   IonSegment,
   IonToast,
   IonText,
+  IonLabel,
 } from "@ionic/react";
 import "./LoginForm.css";
 import { useState, useEffect } from "react";
@@ -20,6 +21,7 @@ import { loginRequest } from "../hooks/restAPIRequest";
 import { useAuth } from "../hooks/useAuthCookie";
 import { warning } from "ionicons/icons";
 import AlertInfo, { AlertState } from "../components/AlertInfo";
+import LocationBranchModal from "../components/LocationBranchModal";
 
 interface LocationState {
   isTokenExpired?: boolean;
@@ -44,6 +46,9 @@ const LoginForm: React.FC = () => {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedBranchId, setSelectedBranchId] = useState<string | undefined>();
+  const [selectedBranchName, setSelectedBranchName] = useState<string>("");
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
   useEffect(() => {
     if (token && role) {
@@ -70,12 +75,21 @@ const LoginForm: React.FC = () => {
   };
 
   const handleLogin = async () => {
-    const authData = { username, password };
+    const authData = { username, password, branch_id: selectedBranchId };
 
     if (
       !checkForm("Username", authData.username) ||
       !checkForm("Password", authData.password)
     ) {
+      return;
+    }
+
+    if (!authData.branch_id) {
+      setAlert({
+        showAlert: true,
+        header: "Peringatan",
+        alertMesage: "Lokasi Cabang belum dipilih!",
+      });
       return;
     }
 
@@ -165,6 +179,10 @@ const LoginForm: React.FC = () => {
               value={username}
               onIonInput={(e) => setUsername(e.detail.value!)}
               className="username-input"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck={false}
+              inputmode="text"
             />
           </IonItem>
           <IonItem>
@@ -177,6 +195,12 @@ const LoginForm: React.FC = () => {
             >
               <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
             </IonInput>
+          </IonItem>
+          <IonItem button onClick={() => setShowLocationModal(true)} lines="full" style={{ marginBottom: "15px" }}>
+            <IonLabel>Lokasi Cabang</IonLabel>
+            <IonText color={selectedBranchName ? "primary" : "medium"}>
+              {selectedBranchName || "Pilih Cabang (Wajib)"}
+            </IonText>
           </IonItem>
           <IonButton
             expand="full"
@@ -198,6 +222,14 @@ const LoginForm: React.FC = () => {
           setAlert((prevState) => ({ ...prevState, showAlert: false }))
         }
         hideButton={alert.hideButton}
+      />
+      <LocationBranchModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onBranchSelected={(id, name) => {
+          setSelectedBranchId(id);
+          setSelectedBranchName(name);
+        }}
       />
     </IonPage>
   );

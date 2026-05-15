@@ -139,3 +139,26 @@ export function formatProductWithWeight(
 
   return `${name} (${grams}gr)`; // ✅ INI YANG KEMARIN HILANG
 }
+
+/**
+ * Mengambil waktu lokal dalam format yyyy-MM-dd HH:mm:ss
+ */
+export function formatDateTimeLocal(date: Date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+/**
+ * Mengambil tanggal lokal dalam format yyyy-MM-dd
+ */
+export function formatDateLocal(date: Date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}

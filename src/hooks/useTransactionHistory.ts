@@ -12,6 +12,7 @@ interface Params {
   selectedDateFilter: string;
   selectedBranchId: string | null;
   selectedKasirId: string | null;
+  transactionCode?: string;
 
   enabled?: boolean; // ✅ tambahan penting
 }
@@ -22,6 +23,7 @@ export const useTransactionHistory = ({
   selectedDateFilter,
   selectedBranchId,
   selectedKasirId,
+  transactionCode,
   enabled = true,
 }: Params) => {
   const [transactions, setTransactions] = useState<any[]>([]);

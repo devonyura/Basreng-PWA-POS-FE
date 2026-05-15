@@ -11,16 +11,21 @@ import {
   IonButton,
   IonFooter,
   IonToolbar,
+  IonHeader,
+  IonTitle,
+  IonButtons,
+  IonIcon
 } from '@ionic/react';
-import { useAuth, BranchData } from '../hooks/useAuthCookie';
+import { closeOutline } from 'ionicons/icons';
 import { getBranches, getNearestBranch, Branch } from '../hooks/restAPIBranch';
 
 interface LocationBranchModalProps {
   isOpen: boolean;
+  onClose: () => void;
+  onBranchSelected: (branchId: string, branchName: string) => void;
 }
 
-const LocationBranchModal: React.FC<LocationBranchModalProps> = ({ isOpen }) => {
-  const { setBranchAfterLocation } = useAuth();
+const LocationBranchModal: React.FC<LocationBranchModalProps> = ({ isOpen, onClose, onBranchSelected }) => {
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState('Menunggu lokasi akurat (6 detik)...');
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -61,17 +66,12 @@ const LocationBranchModal: React.FC<LocationBranchModalProps> = ({ isOpen }) => 
 
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          // MOCK LOKASI UNTUK TESTING
-          // const latitude = -0.9021142776029807;
-          // const longitude = 119.87529591098223;
-          // setStatusMessage(`Lokasi MOCK digunakan (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Mencari cabang terdekat...`);
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
           
           setStatusMessage(`Lokasi akurat terdeteksi (${latitude.toFixed(4)}, ${longitude.toFixed(4)}). Mencari cabang terdekat...`);
           try {
             const nearest = await getNearestBranch(latitude, longitude);
-            console.log("Nearest branch:", nearest);
             if (nearest && nearest.branch_id) {
               setSelectedBranchId(nearest.branch_id);
               setStatusMessage('Cabang terdekat ditemukan!');
@@ -94,28 +94,33 @@ const LocationBranchModal: React.FC<LocationBranchModalProps> = ({ isOpen }) => 
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
-    }, 10000);
+    }, 6000);
   };
 
   const handleConfirm = () => {
-    console.log("Confirming branch selection...", selectedBranchId);
     if (!selectedBranchId) return;
 
     const selectedBranch = branches.find(b => String(b.branch_id) === String(selectedBranchId));
-    console.log("Selected branch object:", selectedBranch);
-    
     if (selectedBranch && selectedBranch.branch_id) {
-      setBranchAfterLocation(selectedBranch.branch_id, selectedBranch as BranchData);
-      console.log("setBranchAfterLocation called with:", selectedBranch.branch_id);
-    } else {
-      console.error("Branch not found in branches list for ID:", selectedBranchId);
+      onBranchSelected(selectedBranch.branch_id, selectedBranch.branch_name);
     }
+    onClose();
   };
 
   return (
-    <IonModal isOpen={isOpen} backdropDismiss={false}>
+    <IonModal isOpen={isOpen} onDidDismiss={onClose}>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle>Pilih Cabang</IonTitle>
+          <IonButtons slot="end">
+            <IonButton onClick={onClose}>
+              <IonIcon icon={closeOutline} />
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
       <IonContent className="ion-padding ion-text-center">
-        <div style={{ marginTop: '20%', padding: '20px' }}>
+        <div style={{ marginTop: '10%', padding: '20px' }}>
           <IonText color="primary">
             <h2>Menentukan Lokasi Cabang</h2>
           </IonText>
@@ -157,7 +162,7 @@ const LocationBranchModal: React.FC<LocationBranchModalProps> = ({ isOpen }) => 
               disabled={!selectedBranchId}
               color="primary"
             >
-              OK - Mulai Bekerja
+              OK - Pilih Cabang
             </IonButton>
           </IonToolbar>
         </IonFooter>

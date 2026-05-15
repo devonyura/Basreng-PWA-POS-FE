@@ -77,17 +77,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     Cookies.set("role", payload.data.role);
     Cookies.set("username", payload.data.username); // ✅ fix bug
     Cookies.set("id_user", payload.data.id);
-    // Cookies.set("branch_id", payload.data.branch_id); // ⛔ Jangan set branch_id otomatis agar LocationBranchModal muncul
+    Cookies.set("branch_id", payload.data.branch_id); 
 
     setToken(jwtToken);
     setRole(payload.data.role);
     setUsername(payload.data.username);
     setIdUser(payload.data.id);
-    // setBranchID(payload.data.branch_id); // ⛔ Biarkan null agar memicu modal lokasi
+    setBranchID(payload.data.branch_id); 
 
-    // if (payload.data.branch_id) {
-    //   fetchBranchData(payload.data.branch_id);
-    // }
+    if (payload.data.branch_id) {
+      fetchBranchData(payload.data.branch_id);
+    }
   };
 
   const logout = () => {
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setBranchID(null);
     setBranchData(null);
 
-    history.replace("/login");
+    window.location.href = "/login";
   };
 
   const setBranchAfterLocation = (id: string, data: BranchData) => {

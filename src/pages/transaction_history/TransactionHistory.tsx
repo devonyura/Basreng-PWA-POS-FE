@@ -177,7 +177,7 @@ const TransactionHistory: React.FC = () => {
             users={filteredUsers}
             selectedKasirId={selectedKasirId}
             onSelect={(id) => {
-              setSelectedKasirId(id);
+              setSelectedKasirId(id === "all" ? null : id);
             }}
           />
 
@@ -188,7 +188,7 @@ const TransactionHistory: React.FC = () => {
             branches={filteredBranches}
             selectedBranchId={selectedBranchId}
             onSelect={(id) => {
-              setSelectedBranchId(id);
+              setSelectedBranchId(id === "all" ? null : id);
             }}
           />
 

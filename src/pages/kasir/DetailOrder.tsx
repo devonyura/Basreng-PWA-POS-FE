@@ -43,7 +43,9 @@ import {
   calculateChange,
   generateReceiptNumber,
   parseWeightGrams,
+  formatDateTimeLocal,
 } from "../../hooks/formatting";
+import { compressImage } from "../../hooks/imageCompression";
 import React from "react";
 
 // ALL child components imports
@@ -250,11 +252,7 @@ const DetailOrder: React.FC = () => {
       if (!checkForm("Alamat Pemesan", customerInfo.address)) return;
     }
 
-    const dateTimeNow = new Date();
-    const formattedDateTime = dateTimeNow
-      .toISOString()
-      .replace("T", " ")
-      .substring(0, 19); // format: yyyy-MM-dd HH:mm:ss
+    const formattedDateTime = formatDateTimeLocal();
 
     const cash_amounts = isCash ? total : (cashGiven ?? 0);
 
@@ -339,6 +337,7 @@ const DetailOrder: React.FC = () => {
     // reset semua state setelah alert ditutup
     setPaymentMethod("cash");
     setIsCash(false);
+    setIsOnlineOrder(false);
     setCashGiven(null);
     setSelectedResellerId(null);
     setCustomerInfo({
@@ -349,9 +348,9 @@ const DetailOrder: React.FC = () => {
     });
     // setShareFile(null);
     setIsSubmitting(false);
-    setShopeeCode(null);
+    setShopeeCode("");
     setIsShopeeOrder(false);
-    setSelectedResellerId(null);
+    setReceiptNoteNumber(null);
 
     dispatch(clearCart());
 
@@ -361,9 +360,14 @@ const DetailOrder: React.FC = () => {
     // reset state bukti pembayaran
     setPaymentProof(null);
     setPaymentProofUrl(null);
+    setIsUploadingProof(false);
 
     // reset transaction code state
     setTransactionCode("");
+
+    // reset alert states
+    setAlertBeforeSubmit(false);
+    setIsResetButton(false);
   };
   // ======================================================================= Reset Input End
 
@@ -527,10 +531,21 @@ const DetailOrder: React.FC = () => {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e: any) => {
+                          onChange={async (e: any) => {
                             const file = e.target.files[0];
                             if (file) {
-                              setPaymentProof(file);
+                              try {
+                                setIsUploadingProof(true);
+                                const compressedFile =
+                                  await compressImage(file);
+                                setPaymentProof(compressedFile);
+                              } catch (err) {
+                                console.error("Compression error:", err);
+                                // Fallback to original if compression fails
+                                setPaymentProof(file);
+                              } finally {
+                                setIsUploadingProof(false);
+                              }
                             }
                           }}
                         />

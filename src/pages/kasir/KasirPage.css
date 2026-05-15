@@ -1,4 +1,5 @@
-* {
+/* Specific styles for KasirPage elements */
+ion-label, ion-title, h2, h3, ion-card-title {
   text-transform: capitalize;
 }
 

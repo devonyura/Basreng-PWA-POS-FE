@@ -37,12 +37,20 @@ const KasirAlert: React.FC<Props> = ({
           },
         },
       ]}
-      inputs={users.map((u) => ({
-        label: u.username,
-        type: "radio",
-        value: u.id, // ✅ pakai ID
-        checked: u.id === selectedKasirId, // ✅ bandingkan ID
-      }))}
+      inputs={[
+        {
+          label: "Semua Akun/Kasir",
+          type: "radio",
+          value: "all",
+          checked: !selectedKasirId || selectedKasirId === "all",
+        },
+        ...users.map((u) => ({
+          label: u.username,
+          type: "radio",
+          value: u.id, // ✅ pakai ID
+          checked: u.id === selectedKasirId, // ✅ bandingkan ID
+        } as const)),
+      ]}
     />
   );
 };

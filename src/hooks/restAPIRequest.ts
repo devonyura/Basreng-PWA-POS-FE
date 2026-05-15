@@ -43,6 +43,7 @@ export interface Student {
 export interface Auth {
 	username: string;
 	password: string;
+	branch_id?: string;
 }
 
 export interface TransactionPayload {

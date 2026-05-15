@@ -78,6 +78,9 @@ const App: React.FC = () => {
               <Route exact path={`/kasir`}>
                 <KasirPage />
               </Route>
+              <Route exact path={`/order`}>
+                <KasirPage />
+              </Route>
               <Route exact path={`/transactionhistory`}>
                 <TransactionHistory />
               </Route>
