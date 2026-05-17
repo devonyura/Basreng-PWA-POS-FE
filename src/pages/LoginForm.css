@@ -4,6 +4,13 @@
   object-fit: contain;
 }
 
+.struk-logo-preview {
+  padding: 0;
+  /* height: 20px; */
+  width: 180px;
+  margin: auto;
+}
+
 .struk-logo {
   padding: 0;
   height: 120px;

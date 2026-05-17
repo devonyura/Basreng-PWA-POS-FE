@@ -105,7 +105,7 @@ const ReceiptHistory = React.forwardRef<HTMLDivElement, ReceiptHistoryProps>(
 
     return (
       <div className="receipt-container" ref={ref}>
-        <IonImg src="/logo-struk.png" className="struk-logo" alt="App Logo" />
+        <IonImg src="/logo-struk.png" className="struk-logo-preview" alt="App Logo" />
         <table className="receipt">
           <thead>
             <tr className="receipt-title">
